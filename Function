@@ -1,0 +1,90 @@
+'====================================================================
+' Nom de la fonction : EppelerTexte
+' Catégorie : Personnalisée / Épellation
+' Description : Convertit le texte saisi en énonçant chaque lettre ou digramme breton avec un mot associé.
+'               La casse et les accents sont ignorés. La lettre "Ñ" est épelée "N tilde".
+' Paramètres :
+'   texte (String) : texte à épeler.
+' Retour :
+'   (String) : texte épelé sous la forme "A comme Alberzh, Ch comme Chan, N comme N tilde, ..."
+' Exemple :
+'   =EppelerTexteBretonAvance("Chával Ñaval") → "Ch comme Chan, A comme Alberzh, V comme Viktor, A comme Alberzh, L comme Loeiz, Ñ comme N tilde, A comme Alberzh, V comme Viktor, A comme Alberzh, L comme Loeiz"
+'====================================================================
+Public Function EppelerTexte(texte As String) As String
+    Dim Lettres As Variant
+    Dim Mots As Variant
+    Dim sResultat As String
+    Dim i As Integer
+    Dim j As Integer
+    Dim trouve As Boolean
+    Dim sTexte As String
+    
+    ' --- Lettres/digrammes bretons et mots ---
+    Lettres = Array("C'h","Ch","A","B","C","D","E","F","G","H","I","J","K","L","M","N","Ñ","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+    Mots = Array("C'halil","Chan","Alberzh","Bernez","Camille","Denez","Enora","Frañch","Gaston","Herri","Iwan","Jakez","Katell","Loeiz","Mari","Nicolaz","N tilde","Oskar","Pêr","Quentin","René","Suzanne","Tereza","Uriell","Viktor","William","Xavier","Yann","Zoe")
+    
+    sResultat = ""
+    
+    ' --- Normaliser : majuscules + enlever accents ---
+    sTexte = UCase(texte)
+    
+    ' Remplacements accentués (simplifié pour les lettres courantes)
+    sTexte = Replace(sTexte, "Á", "A")
+    sTexte = Replace(sTexte, "À", "A")
+    sTexte = Replace(sTexte, "Â", "A")
+    sTexte = Replace(sTexte, "Ä", "A")
+    sTexte = Replace(sTexte, "É", "E")
+    sTexte = Replace(sTexte, "È", "E")
+    sTexte = Replace(sTexte, "Ê", "E")
+    sTexte = Replace(sTexte, "Ë", "E")
+    sTexte = Replace(sTexte, "Í", "I")
+    sTexte = Replace(sTexte, "Ì", "I")
+    sTexte = Replace(sTexte, "Î", "I")
+    sTexte = Replace(sTexte, "Ï", "I")
+    sTexte = Replace(sTexte, "Ó", "O")
+    sTexte = Replace(sTexte, "Ò", "O")
+    sTexte = Replace(sTexte, "Ô", "O")
+    sTexte = Replace(sTexte, "Ö", "O")
+    sTexte = Replace(sTexte, "Ú", "U")
+    sTexte = Replace(sTexte, "Ù", "U")
+    sTexte = Replace(sTexte, "Û", "U")
+    sTexte = Replace(sTexte, "Ü", "U")
+    
+    ' --- Supprimer ponctuation et espaces ---
+    sTexte = Replace(sTexte, " ", "")
+    sTexte = Replace(sTexte, ",", "")
+    sTexte = Replace(sTexte, ".", "")
+    
+    i = 1
+    Do While i <= Len(sTexte)
+        trouve = False
+        
+        ' Vérifier digrammes/trigrammes en priorité
+        For j = LBound(Lettres) To UBound(Lettres)
+            If Mid(sTexte, i, Len(Lettres(j))) = Lettres(j) Then
+                sResultat = sResultat & Lettres(j) & " comme " & Mots(j)
+                i = i + Len(Lettres(j))
+                trouve = True
+                Exit For
+            End If
+        Next j
+        
+        ' Si rien trouvé, caractère simple
+        If Not trouve Then
+            sResultat = sResultat & Mid(sTexte, i, 1)
+            i = i + 1
+        End If
+        
+        ' Ajouter virgule si ce n’est pas la fin
+        If i <= Len(sTexte) + 1 Then
+            sResultat = sResultat & ", "
+        End If
+    Loop
+    
+    ' Supprimer dernière virgule
+    If Right(sResultat, 2) = ", " Then
+        sResultat = Left(sResultat, Len(sResultat) - 2)
+    End If
+    
+    EppelerTexte = sResultat
+End Function
